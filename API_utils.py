@@ -10,53 +10,45 @@ from dask import delayed
 import dask
 from dask.diagnostics import ProgressBar
 
-
-
-
 # ------------------------------------------------------------------------------------
 # functions related to downloading from the API
 
 
-
-def fetch_data_from_NEON_API(sitecodes, productcodes, daterange = 'most recent', data_path='/home/jovyan/NEON/CO2xSWV_data'):
+def fetch_data_from_NEON_API(site, productcode, data_path, daterange = 'most recent'):
     '''TODO: make a docstring for this, and move it to neon_utils when all done.
     TODO: put sensor positions in its own loop; for site, for product. just use one date so we don't have duplicates
     
     '''
     base_url = 'https://data.neonscience.org/api/v0/'
-    data_path = data_path.rstrip('/') + '/'
-    lazy = []
-    for site in sitecodes:
-        #this part determines which dates are available for the site/product
-        dates = get_common_dates(site, productcodes, base_url)
-        if daterange == 'most recent':
-            # get the most recent date
-            dates = [max(dates)]
-        elif daterange == 'all':
-            pass
-        else:
-            try:
-                # get dates in the range
-                assert isinstance(daterange,list)
-                begin, terminate = min(daterange), max(daterange)
-                dates = [d  for d in dates if (d >= begin) and (d <= terminate)]                 
-            except AssertionError:
-                print('daterange must be a list, e.g. [\'2020-10\', \'2019-10\']')
-                return(None)
 
+    # determine which dates are available for the site/product
+    url = f'{base_url}sites/{site}'
+    response = requests.get(url)
+    data = response.json()['data']
+    dates = set(data['dataProducts'][0]['availableMonths'])
+
+    # fileter the available dates to get the ones desired
+    if daterange == 'most recent':
+        dates = [max(dates)]
+    elif daterange == 'all':
+        pass
+    else:
+        try:
+            # filter dates to be in daterange
+            assert isinstance(daterange,list)
+            begin, terminate = min(daterange), max(daterange)
+            dates = [d  for d in dates if (d >= begin) and (d <= terminate)]                 
+        except AssertionError:
+            raise Exception('daterange must be a list, e.g. [\'2020-10\', \'2019-10\']')
+            return(None)
         for date in dates:
-            for product in productcodes:
-                try:
-                    sensor_positions(product, site, date, data_path)
-                except:
-                    pass
-                result = delayed(dload)(product, site, date, base_url, data_path)
-                lazy.append(result)
-    with ProgressBar():
-        dask.compute(*lazy)
+            try:
+                sensor_positions(product, site, date, data_path)
+            except:
+                pass
+            dload(product, site, date, base_url, data_path)
         
-        
-        
+              
 def get_common_dates(site, products, base_url):        
     dates_list = []
     for product in products:
@@ -69,8 +61,7 @@ def get_common_dates(site, products, base_url):
     dates = list(set.intersection(*dates_list))
     return(dates)
         
-        
-        
+       
 def dload(product, site, date, base_url, data_path):                     
     url = f'{base_url}data/{product}/{site}/{date}'
     response = requests.get(url)
@@ -99,7 +90,7 @@ def dload(product, site, date, base_url, data_path):
                     attempts = attempts + 1
             # write the file
             if success:
-                fname = data_path + f['name']
+                fname = os.path.join(data_path, f['name'])
                 with open(fname, 'wb') as sink:
                     sink.write(handle.content)
 
@@ -137,7 +128,6 @@ def download_sensor_positions(product, site, date, data_path):
     else:
         return(False)
         
-    
 def find_sensor_positions_url(response):
     '''Find url for sensor_positions file from NEON API response'''
     data = response.json()['data']
