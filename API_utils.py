@@ -14,7 +14,7 @@ from dask.diagnostics import ProgressBar
 # functions related to downloading from the API
 
 
-def fetch_data_from_NEON_API(site, productcode, data_path, daterange = 'most recent'):
+def fetch_from_API(site, productcode, data_path, daterange = 'most recent'):
     '''TODO: make a docstring for this, and move it to neon_utils when all done.
     TODO: put sensor positions in its own loop; for site, for product. just use one date so we don't have duplicates
     
