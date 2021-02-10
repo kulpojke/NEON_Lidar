@@ -14,6 +14,28 @@ from dask.diagnostics import ProgressBar
 # ------------------------------------------------------------------------------------
 # functions related to downloading from the API
 
+def show_dates(site, productcode):
+    '''returns available dates for site and product'''
+    
+    base_url = 'https://data.neonscience.org/api/v0/'
+
+    # determine which dates are available for the site/product
+    url = f'{base_url}sites/{site}'
+    response = requests.get(url)
+    data = response.json()['data']
+    dates = list(set(data['dataProducts'][0]['availableMonths']))
+    dates.sort()
+    return(dates)
+
+def show_files_for_site_date(product, site, date):
+    '''returns list of files available for the site and date'''
+    base_url = 'https://data.neonscience.org/api/v0/'
+    url = f'{base_url}data/{product}/{site}/{date}'
+    response = requests.get(url)
+    data = response.json()
+    files = data['data']['files']
+    return(files)
+
 
 def fetch_from_API(site, productcode, data_path, daterange = 'most recent'):
     '''TODO: make a docstring for this, and move it to neon_utils when all done.
@@ -26,7 +48,8 @@ def fetch_from_API(site, productcode, data_path, daterange = 'most recent'):
     url = f'{base_url}sites/{site}'
     response = requests.get(url)
     data = response.json()['data']
-    dates = set(data['dataProducts'][0]['availableMonths'])
+    dates = list(set(data['dataProducts'][0]['availableMonths']))
+    dates.sort()
 
     # fileter the available dates to get the ones desired
     if daterange == 'most recent':
@@ -34,13 +57,17 @@ def fetch_from_API(site, productcode, data_path, daterange = 'most recent'):
         print(f'{dates} is the most recent dataset for {productcode} at {site}')
     elif daterange == 'all':
         print(f'{len(dates)} dates are available for {productcode} at {site}')
+
     else:
+        # filter dates to be in daterange
         try:
-            # filter dates to be in daterange
             assert isinstance(daterange,list)
+            
+            # make dates into datetimes
             daterange = [np.datetime64(d) for d in daterange]
+            dates = [np.datetime64(d) for d in dates]
+            
             begin, terminate = min(daterange), max(daterange)
-            print(begin)
             dates = [d  for d in dates if (d >= begin) and (d <= terminate)] 
             print(f'{len(dates)} dates are available for {productcode} for {daterange[0]} to {daterange[-1]} at {site}')                
         except AssertionError:
@@ -48,10 +75,10 @@ def fetch_from_API(site, productcode, data_path, daterange = 'most recent'):
             return(None)
         for date in dates:
             try:
-                sensor_positions(product, site, date, data_path)
+                sensor_positions(productcode, site, date, data_path)
             except:
                 pass
-            dload(product, site, date, base_url, data_path)
+            dload(productcode, site, date, base_url, data_path)
         
               
 def get_common_dates(site, products, base_url):        
@@ -67,11 +94,12 @@ def get_common_dates(site, products, base_url):
     return(dates)
         
        
-def dload(product, site, date, base_url, data_path):                     
+def dload(product, site, date, base_url, data_path):
     url = f'{base_url}data/{product}/{site}/{date}'
     response = requests.get(url)
     data = response.json()
     files = data['data']['files']
+    for file in files: print(file['name'])
     os.makedirs(data_path, exist_ok=True)
     for f in files:
         if ('expanded' in f['name']) & ('_1' in f['name']) & (f['name'].endswith('.csv')):                        
