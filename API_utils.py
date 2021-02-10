@@ -37,8 +37,8 @@ def fetch_from_API(site, productcode, data_path, daterange = 'most recent'):
         try:
             # filter dates to be in daterange
             assert isinstance(daterange,list)
+            daterange = [np.datetime64(d) for d in daterange]
             begin, terminate = min(daterange), max(daterange)
-            print(begin, terminate)
             dates = [d  for d in dates if (d >= begin) and (d <= terminate)] 
             print(f'{len(dates)} dates are available for {productcode} for {daterange[0]} to {daterange[-1]} at {site}')                
         except AssertionError:
