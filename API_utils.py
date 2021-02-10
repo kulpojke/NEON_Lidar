@@ -37,7 +37,9 @@ def fetch_from_API(site, productcode, data_path, daterange = 'most recent'):
             # filter dates to be in daterange
             assert isinstance(daterange,list)
             begin, terminate = min(daterange), max(daterange)
-            dates = [d  for d in dates if (d >= begin) and (d <= terminate)]                 
+            dates = [d  for d in dates if (d >= begin) and (d <= terminate)] 
+            if len(dates) == 0:
+                print(f'Sorry, {productcode} is not available for that daterange')                
         except AssertionError:
             raise Exception('daterange must be a list, e.g. [\'2020-10\', \'2019-10\']')
             return(None)
