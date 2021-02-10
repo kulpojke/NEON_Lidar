@@ -30,15 +30,16 @@ def fetch_from_API(site, productcode, data_path, daterange = 'most recent'):
     # fileter the available dates to get the ones desired
     if daterange == 'most recent':
         dates = [max(dates)]
+        print(f'{dates} is the most recent dataset for {productcode} at {site}')
     elif daterange == 'all':
-        pass
+        print(f'{len(dates)} dates are available for {productcode} at {site}')
     else:
         try:
             # filter dates to be in daterange
             assert isinstance(daterange,list)
             begin, terminate = min(daterange), max(daterange)
             dates = [d  for d in dates if (d >= begin) and (d <= terminate)] 
-            print(f'{len(dates)} dates are available for {productcode} for {daterange[0]} to {daterange[-1]}')                
+            print(f'{len(dates)} dates are available for {productcode} for {daterange[0]} to {daterange[-1]} at {site}')                
         except AssertionError:
             raise Exception('daterange must be a list, e.g. [\'2020-10\', \'2019-10\']')
             return(None)
