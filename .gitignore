@@ -1,0 +1,74 @@
+
+Skip to content
+Pull requests
+Issues
+Marketplace
+Explore
+@kulpojke
+kulpojke /
+UrbanForest
+
+1
+0
+
+    1
+
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security
+Insights
+
+    Settings
+
+UrbanForest/.gitignore
+@kulpojke
+kulpojke making extra dimensions in cloud, rearanging in prepeartion to save f…
+Latest commit 019bd78 15 days ago
+History
+1 contributor
+26 lines (23 sloc) 385 Bytes
+# ignore everything
+*
+# except these files...
+!.gitignore
+!*.py
+!*.jl
+!*.sh
+!*.ipynb
+!*.r
+!*.json
+!*.md
+!*.csvx   
+!*.png
+
+# ...even if they are in subdirectories
+!*/
+
+# ... unl;ess the directory is one of these
+/.vscode/
+/.ipynb_checkpoints/
+/bin/
+/tmp/
+
+# ignore these specific annoying jsons
+.config/configstore/update-notifier-npm.json
+.local/share/jupyter/runtime/nbserver-1.json
+
+    © 2021 GitHub, Inc.
+    Terms
+    Privacy
+    Security
+    Status
+    Docs
+
+    Contact GitHub
+    Pricing
+    API
+    Training
+    Blog
+    About
+
