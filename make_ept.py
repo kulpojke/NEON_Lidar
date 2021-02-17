@@ -41,6 +41,5 @@ cmd = 'entwine build -c config.json'
 result = subprocess.run(cmd, shell=True, capture_output=True)
 
 os.remove('config.json')
-# %%
-cmd
+
 # %%
