@@ -9,7 +9,7 @@ git config --global user.email michaelhuggins@protonmail.com
 git config --global user.name michael
 rm .config/configstore/update-notifier-npm.json
 rm .local/share/jupyter/runtime/nbserver-1.json
-git pull origin
+git pull origin main
 git checkout main
 
 ```
