@@ -1,5 +1,10 @@
+in onew terminal
+```
+conda update -y numpy
+```
 
 
+in other
 ```
 git init
 git remote add origin https://github.com/kulpojke/NEON_Lidar.git
